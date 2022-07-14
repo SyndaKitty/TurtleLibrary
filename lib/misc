@@ -1,0 +1,48 @@
+function defrag()
+    local emptySlot = -1
+    for i = 1,16 do
+        local det = turtle.getItemDetail(i)
+        if det == nil then
+            emptySlot = i
+        end
+    end
+
+    if emptySlot < 0 then
+        e.post("No empty slot, unable to defrag")
+        return
+    end
+
+    for k,v in ipairs(names) do
+        print("Sorting " .. v)
+        for k,v in pairs(entries[v].slots) do
+            print("  " .. v)
+        end
+    end
+end
+
+local function getSortedNamesExcluding(exclude)
+    local entries = {}
+
+    for i = 1,16 do
+        local det = turtle.getItemDetail(i)
+        if det ~= nil then
+            if entries[det.name] == nil then
+                entries[det.name] = {}
+                entries[det.name].name = det.name
+                entries[det.name].count = 0
+                entries[det.name].stackSize = turtle.getItemSpace(i) + det.count
+                entries[det.name].slots = {}
+            end
+            local t = entries[det.name]
+            table.insert(t.slots, i)
+            t.count = t.count + det.count
+        end
+    end
+
+    names = {}
+    for k,v in pairs(entries) do
+        table.insert(names, k)
+    end
+
+    table.sort(names)
+end

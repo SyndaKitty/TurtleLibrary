@@ -1,0 +1,24 @@
+-- Error API
+local function file() return debug.getinfo(3, 'S').source end
+local function line() return debug.getinfo(3, 'l').currentline end
+local function func() return debug.getinfo(3, 'n').name end
+
+function post(message, pause)
+    pause = pause or false
+
+    local s = file() .. "." .. line()
+    local f = func()
+    if f ~= nil then s = s .. f end
+
+    print(s .. ": " .. message)
+
+    if pause then
+        print ("Hit enter to continue")
+        while true do
+            local event, key = os.pullEvent( "key" )
+            if key == keys.enter then
+                return
+            end
+        end
+    end
+end

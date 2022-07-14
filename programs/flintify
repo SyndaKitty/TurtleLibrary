@@ -1,0 +1,26 @@
+os.loadAPI("lib/all")
+
+i.select("gravel")
+
+local a,b = turtle.inspect()
+if a and b.name == "minecraft:gravel" then
+    turtle.dig()
+end
+
+if not i.select("gravel") then
+    e.post("No gravel in inventory")
+end
+
+if not turtle.place() then
+    e.post("Unable to place gravel")
+end
+
+while true do
+    turtle.dig()
+    if not i.select("gravel") then
+        return
+    end
+    if not turtle.place() then
+        return
+    end
+end
