@@ -1,0 +1,16 @@
+os.loadAPI("lib/all")
+
+local args = { ... }
+
+if #args == 0 then
+	args[1] = "1"
+end
+
+local turns = tonumber(args[1])
+if turns == nil then
+    log.error("Argument not recognized: '" .. args[1] .. "'")
+else
+    for i = 1,turns do
+        m.left()
+    end
+end

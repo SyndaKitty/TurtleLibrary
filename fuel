@@ -1,0 +1,4 @@
+-- TODO 
+-- if args aren't null, refuel with the indicated slow
+
+log.info("Fuel level: " .. turtle.getFuelLevel())

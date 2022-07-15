@@ -1,0 +1,68 @@
+os.loadAPI("lib/all")
+
+local args = { ... }
+
+local w
+local d
+local h
+
+if #args < 3 then
+    log.error("Expected [width] [depth] [height] arguments")
+    return
+else
+    w = tonumber(args[1]) - 1
+    d = tonumber(args[2]) - 1
+    h = tonumber(args[3]) - 1
+end
+
+m.init(0, 0, -1, 2) -- forward is Z+, right is X-
+m.gotoZ(0, true)
+
+local function sign(from, to)
+    local delta = to - from
+    if delta > 0 then return 1 end
+    if delta < 0 then return -1 end
+    return 0
+end
+
+local function column()
+    if m.getY() == 0 then
+        m.gotoY(h, true)
+    else
+        m.gotoY(0, true)
+    end
+end
+
+local function row()
+    column(h)
+    local targetZ = d
+    if m.getZ() ~= 0 then
+        targetZ = 0
+    end
+
+    while m.getZ() ~= targetZ do
+        local nextZ = m.getZ() + sign(m.getZ(), targetZ)
+        m.gotoZ(nextZ, true)
+        column(h)
+    end
+end
+
+if m.getX() ~= -w then
+    row()
+end
+
+while m.getX() ~= -w do
+    if m.getH() == 2 then
+        m.right()
+        m.forward(true)
+        m.right()
+    else 
+        m.left()
+        m.forward(true)
+        m.left()
+    end
+    row()
+end
+
+m.gotoYXZ(0, 0, -1)
+m.turnTo(2)

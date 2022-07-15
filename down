@@ -1,0 +1,24 @@
+if m == nil then os.loadAPI("lib/all") end
+
+local args = { ... }
+
+if #args == 0 then
+	args[1] = "1"
+end
+
+local force = false
+if #args > 1 and args[2] == "force" then
+    force = true
+end
+
+local ty = tonumber(args[1])
+if ty == nil then
+	log.error("Argument not recognized: " .. args[1])
+end
+
+for i = 1,ty do
+	if not m.down(force) then
+		log.error("Unable to move down")
+		return
+	end
+end

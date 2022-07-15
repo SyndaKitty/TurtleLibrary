@@ -1,0 +1,6 @@
+os.loadAPI("lib/all")
+
+print(m.getX() .. "," .. m.getY() .. "," .. m.getZ())
+
+-- TODO
+-- if arguments, initialize position with args

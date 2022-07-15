@@ -15,8 +15,15 @@ z = 0
 -- With 0, 1, 2, 3 accordingly
 h = 0
 
+-- For some reason, os.loadAPI() doesn't quite give us the right
+-- values back for x,y,z,h unless we wrap them in functions
+function getX() return x end
+function getY() return y end
+function getZ() return z end
+function getH() return h end
+
 function load()
-    print('Loading position')
+    log.info('Loading position', false)
     if fs.exists(saveLocation) then
         local file = fs.open(saveLocation, "r")
         x = tonumber(file.readLine())
@@ -26,27 +33,29 @@ function load()
         file.close()
         return true
     else
-        print('Unable to find save file')
+        log.error('Unable to find save file', false, false)
         return false
     end
 end
+
+load()
 
 -- Initialize the movement API to have the following x,y,z and heading values
 -- Can be called with optional parameters, and the corresponding value will
 -- default to 0
 function init(inx, iny, inz, inh)
-    load()
-    x = inx or x or 0
-    y = iny or x or 0
-    z = inz or z or 0
-    h = inh or h or 0
-    print('Initiated to: ' .. x .. ', ' .. y .. ', ' .. z .. ', ' .. h)
+    x = inx or 0
+    y = iny or 0
+    z = inz or 0
+    h = inh or 0
+    log.info('Initialized to: ' .. x .. ', ' .. y .. ', ' .. z .. ', ' .. h, false)
     save()
 end
 
 function estop()
-    local file = fs.open(estopLocation)
+    local file = fs.open(estopLocation, "r")
     local stat = tonumber(file.readLine())
+    file.close()
     if stat == 0 then return false end
     return true
 end
@@ -147,8 +156,8 @@ function back(force)
                 os.sleep(.5)
             end
         end
-        result = turtle.back()
         turnAround()
+        result = turtle.back()
     end
     if result then
         if h == 0 then
@@ -231,9 +240,9 @@ function gotoX(inx, force)
 
     force = force or false
     if x < inx then
-        turnTo(1)
-    elseif x > inx then
         turnTo(3)
+    elseif x > inx then
+        turnTo(1)
     end
     while x ~= inx do
         if not forward(force) then

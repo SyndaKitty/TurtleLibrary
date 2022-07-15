@@ -4,27 +4,34 @@ local function line() return debug.getinfo(3, 'l').currentline end
 local function func() return debug.getinfo(3, 'n').name end
 
 logLocation = "save/log"
-local fileHandle
+
+function checkFile()
+    if fileHandle ~= nil then return end
+    fileHandle = fs.open(logLocation, "a")
+end
 
 function clear()
     fs.delete(logLocation)
 end
 
-function info(msg)
+function info(msg, showOnTerminal)
+    if showOnTerminal == nil then showOnTerminal = true end
     checkFile()
-    print(msg)
+    if showOnTerminal then
+        print(msg)
+    end
     fileHandle.writeLine(msg)
     fileHandle.flush()
 end
 
-function error(msg, pause)
+function error(msg, pause, showOnTerminal)
     pause = pause or false
 
     local s = file() .. "." .. line()
     local f = func()
     if f ~= nil then s = s .. ":" .. f end
 
-    info(s .. ": " .. msg)
+    info(s .. ": " .. msg, showOnTerminal)
 
     if pause then
         print("Hit enter to continue")
@@ -35,9 +42,4 @@ function error(msg, pause)
             end
         end
     end
-end
-
-function checkFile()
-    if fileHandle ~= nil then return end
-    fileHandle = fs.open(logLocation, "a")
 end

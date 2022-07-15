@@ -1,0 +1,24 @@
+os.loadAPI("lib/all")
+
+local args = { ... }
+
+if #args == 0 then
+	args[1] = "1"
+end
+
+local force = false
+if #args > 1 and args[2] == "force" then
+    force = true
+end
+
+local tz = tonumber(args[1])
+if tz == nil then
+	log.error("Argument not recognized: " .. args[1])
+end
+
+for i = 1,tz do
+	if not m.back(force) then
+		log.error("Unable to move back")
+        return
+	end
+end

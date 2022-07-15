@@ -54,7 +54,7 @@ local function checkItem(item, swaps, items)
             checkItem(nextItem, swaps, items)
         else
             turtle.select(swap.from)
-            local tempSlot = i.getEmptySlot()
+            local tempSlot = inv.getEmptySlot()
             turtle.transferTo(tempSlot)
             executeChain(swaps)
             turtle.select(tempSlot)
@@ -64,7 +64,7 @@ local function checkItem(item, swaps, items)
 end
 
 local function sort()
-    local emptySlot = i.getEmptySlot()
+    local emptySlot = inv.getEmptySlot()
     if emptySlot < 0 then
         log.error("No empty slot, unable to sort")
         return
