@@ -1,6 +1,7 @@
 -- Movement API
-os.loadAPI("lib/e")
-local saveLocation = "save/position"
+os.loadAPI("lib/log")
+
+saveLocation = "save/position"
 local estopLocation = "save/estop"
 local checkFuel = nil
 
@@ -98,7 +99,7 @@ function forward(force)
         -- Check to see if the block is diggable
         local digResult = turtle.dig()
         if not digResult then
-            e.post("Block not diggable")
+            log.error("Block not diggable")
             return false
         else
             -- If so, then keep digging til we're done  (in case of falling blocks)
@@ -136,7 +137,7 @@ function back(force)
         -- Check to see if the block is diggable
         local digResult = turtle.dig()
         if not digResult then
-            e.post("Block not diggable")
+            log.error("Block not diggable")
             turnAround()
             return false
         else
@@ -175,7 +176,7 @@ function up(force)
         -- Check to see if the block is diggable
         local digResult = turtle.digUp()
         if not digResult then
-            e.post("Block above not diggable")
+            log.error("Block above not diggable")
             return false
         else
             -- If so, then keep digging til we're done  (in case of falling blocks)
@@ -203,7 +204,7 @@ function down(force)
         -- Check to see if the block is diggable
         local digResult = turtle.digDown()
         if not digResult then
-            e.post("Block below not diggable")
+            log.error("Block below not diggable")
             return false
         end
         result = turtle.down()

@@ -1,0 +1,48 @@
+-- Inventory API
+os.loadAPI("lib/log")
+
+function removeSourceMod(itemName)
+    local colonIndex = -1
+    for i = 1,string.len(itemName) do
+        if string.sub(itemName, i, i) == ":" then
+            colonIndex = i
+        end
+    end
+    if colonIndex < 0 then
+        log.error("Expected colon in item name")
+        return itemName
+    end
+    return string.sub(itemName, colonIndex+1, string.len(itemName))
+end
+
+function select(item)
+    if item == nil then return selectEmptySlot() end
+    for i = 1,16 do
+        local det = turtle.getItemDetail(i)
+        if det ~= nil and (det.name == item or removeSourceMod(det.name) == item) then
+            turtle.select(i)
+            return true, i
+        end
+    end
+    return false, -1
+end
+
+function getEmptySlot()
+    for i = 1,16 do
+        local det = turtle.getItemDetail(i)
+        if det == nil then
+            return i
+        end
+    end
+    return -1
+end
+
+function selectEmptySlot()
+    for i = 1,16 do
+        local det = turtle.getItemDetail(i)
+        if det == nil then 
+            return true, i
+        end
+    end
+    return false, -1
+end

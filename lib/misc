@@ -1,48 +1,101 @@
-function defrag()
-    local emptySlot = -1
-    for i = 1,16 do
+os.loadAPI("lib/log")
+
+local function combineLikeItems()
+    for i = 1, 16 do
         local det = turtle.getItemDetail(i)
-        if det == nil then
-            emptySlot = i
-        end
-    end
 
-    if emptySlot < 0 then
-        e.post("No empty slot, unable to defrag")
-        return
-    end
-
-    for k,v in ipairs(names) do
-        print("Sorting " .. v)
-        for k,v in pairs(entries[v].slots) do
-            print("  " .. v)
+        if det ~= nil and turtle.getItemSpace(i) > 0 then
+            for j = i + 1, 16 do
+                if turtle.getItemSpace(i) <= 0 then
+                    break
+                end
+                local det2 = turtle.getItemDetail(j)
+                if det2 ~= nil and det2.name == det.name then
+                    turtle.select(j)
+                    turtle.transferTo(i)
+                end
+            end
         end
     end
 end
 
-local function getSortedNamesExcluding(exclude)
-    local entries = {}
+local function executeChain(swaps)
+    while #swaps > 0 do
+        local swap = table.remove(swaps, #swaps)
+        if turtle.getSelectedSlot() ~= swap.from then
+            turtle.select(swap.from)
+        end
+        turtle.transferTo(swap.to)
+    end
+end
 
-    for i = 1,16 do
+local function checkItem(item, swaps, items)
+    if item.slot == item.newSlot then
+        return
+    end
+    local swap = {
+        from = item.slot,
+        to = item.newSlot
+    }
+
+    table.insert(swaps, swap)
+    if turtle.getItemDetail(swap.to) == nil then
+        executeChain(swaps)
+    else
+        local key = -1
+        for k, v in pairs(items) do
+            if v.slot == swap.to then
+                key = k
+                break
+            end
+        end
+        if key >= 0 then
+            local nextItem = table.remove(items, key)
+            checkItem(nextItem, swaps, items)
+        else
+            turtle.select(swap.from)
+            local tempSlot = i.getEmptySlot()
+            turtle.transferTo(tempSlot)
+            executeChain(swaps)
+            turtle.select(tempSlot)
+            turtle.transferTo(swap.to)
+        end
+    end
+end
+
+local function sort()
+    local emptySlot = i.getEmptySlot()
+    if emptySlot < 0 then
+        log.error("No empty slot, unable to sort")
+        return
+    end
+    local items = {}
+    for i = 1, 16 do
         local det = turtle.getItemDetail(i)
         if det ~= nil then
-            if entries[det.name] == nil then
-                entries[det.name] = {}
-                entries[det.name].name = det.name
-                entries[det.name].count = 0
-                entries[det.name].stackSize = turtle.getItemSpace(i) + det.count
-                entries[det.name].slots = {}
-            end
-            local t = entries[det.name]
-            table.insert(t.slots, i)
-            t.count = t.count + det.count
+            local item = {
+                name = det.name,
+                slot = i
+            }
+            table.insert(items, item)
         end
     end
 
-    names = {}
-    for k,v in pairs(entries) do
-        table.insert(names, k)
-    end
+    table.sort(items, function(t1, t2)
+        if t1.name == t2.name then return t1.slot < t2.slot end
+        return t1.name < t2.name
+    end)
 
-    table.sort(names)
+    for k, v in ipairs(items) do v.newSlot = k end
+
+    while #items > 0 do
+        local item = table.remove(items, #items)
+        swaps = {}
+        checkItem(item, swaps, items)
+    end
+end
+
+function defrag(doSort)
+    combineLikeItems()
+    if doSort then sort() end
 end
