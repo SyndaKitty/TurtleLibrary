@@ -26,10 +26,24 @@ local function sign(from, to)
 end
 
 local function column()
-    if m.getY() == 0 then
-        m.gotoY(h, true)
+    if h <= 1 then 
+        return
+    elseif h == 2 then 
+        turtle.digUp()
     else
-        m.gotoY(0, true)
+        if m.getY() == 0 then
+            m.gotoY(1, true)
+        end
+        
+        if m.getY() == 1 then
+            turtle.digDown()
+            m.gotoY(h-1, true)
+            turtle.digUp()
+        else
+            turtle.digUp()
+            m.gotoY(1, true)
+            turtle.digDown()
+        end
     end
 end
 
