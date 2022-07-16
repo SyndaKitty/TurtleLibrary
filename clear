@@ -18,13 +18,6 @@ end
 m.init(0, 0, -1, 2) -- forward is Z+, right is X-
 m.gotoZ(0, true)
 
-local function sign(from, to)
-    local delta = to - from
-    if delta > 0 then return 1 end
-    if delta < 0 then return -1 end
-    return 0
-end
-
 local function column()
     if h <= 1 then 
         return
@@ -55,7 +48,7 @@ local function row()
     end
 
     while m.getZ() ~= targetZ do
-        local nextZ = m.getZ() + sign(m.getZ(), targetZ)
+        local nextZ = m.getZ() + misc.sign(m.getZ(), targetZ)
         m.gotoZ(nextZ, true)
         column(h)
     end

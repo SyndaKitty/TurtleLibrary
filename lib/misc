@@ -99,3 +99,19 @@ function defrag(doSort)
     combineLikeItems()
     if doSort then sort() end
 end
+
+function waitForKey(k)
+    while true do
+        local event, key = os.pullEvent( "key" )
+        if key == k then
+            return
+        end
+    end
+end
+
+function sign(from, to)
+    local delta = to - from
+    if delta > 0 then return 1 end
+    if delta < 0 then return -1 end
+    return 0
+end

@@ -1,0 +1,161 @@
+os.loadAPI("lib/all")
+
+-- TODO need to check on inventory during harvest.. 
+--   not a problem for smaller farms
+
+done = false
+
+local function store()
+	-- Assuming at 0, -1, 0
+	m.turnTo(3)
+	for i = 1,16 do
+		local det = turtle.getItemDetail(i)
+		if det ~= nil then
+			turtle.select(i)
+			if not turtle.drop() then
+				log.info("Chest is full! - Exiting")
+				done = true
+				return
+			end
+		end
+	end
+end
+
+local function getFuel()
+	log.info("Going to retrieve fuel")
+
+	local x = m.getX()
+	local y = m.getY()
+	local z = m.getZ()
+	local h = m.getH()
+
+	m.gotoXZY(0, -1, 0)
+	
+	store()
+	if done then return end
+
+	m.turnTo(0)
+	while turtle.getFuelLevel() < minFuel do
+		if not turtle.suck() then
+			log.info("Please provide more fuel in rear chest")
+			log.info("Press [enter] to continue")
+			misc.waitForKey(keys.enter)
+		else
+			for i = 1,16 do
+				if turtle.getItemDetail(i) ~= nil then
+					turtle.select(i)
+					turtle.refuel()
+				end
+			end
+		end
+	end
+
+	log.info("Returning to harvest")
+	m.gotoYZX(y, z, x)
+	m.turnTo(h)
+end
+
+local function checkFuel()
+	if turtle.getFuelLevel() < minFuel then
+		getFuel()
+	end
+end
+
+local function column()
+	e, v = turtle.inspectDown()
+	if not e then return end
+	if v.name == "minecraft:sugar_cane" then
+		m.down(true)
+		turtle.digDown()
+		m.up(true)
+	end
+end
+
+local function row()
+	column()
+	local targetZ = d
+	if m.getZ() ~= 0 then
+		targetZ = 0
+	end
+
+	while m.getZ() ~= targetZ do
+		local nextZ = m.getZ() + misc.sign(m.getZ(), targetZ)
+		m.gotoZ(nextZ, true)
+		column()
+	end
+end
+
+local function finish()
+	m.gotoXZY(0, -1, 0)
+	m.turnTo(2)
+end
+
+local function checkField()
+	m.turnTo(2)
+	m.gotoYZ(3, 0)
+	row()
+	while m.getX() ~= -w do
+		if m.getH() == 2 then
+			m.right()
+			m.forward(true)
+			m.right()
+		else 
+			m.left()
+			m.forward(true)
+			m.left()
+		end
+		row()
+	end
+	finish()
+end
+
+args = {...}
+
+if #args < 2 then
+	log.info("Usage: sugarcane [width] [depth]")
+	return
+end
+
+w = tonumber(args[1])
+d = tonumber(args[2])
+
+if w == nil or d == nil then
+	log.info("Unexpected args: " .. args[1] .. " " .. args[2])
+	return
+end
+
+if w * d > 50000 then
+	log.info("Are you crazy?")
+	return
+end
+
+if w < 0 or d < 0 then
+	log.info("Only positive dimensions")
+	return
+end
+
+-- Forward is Z+, right is X-
+m.init(0, 0, -1, -2)
+
+store()
+if done then finish() return end
+
+minFuel = w * d * 3
+checkFuel()
+
+w = w - 1
+d = d - 1
+
+log.info("Beginning harvest")
+
+while not done do
+	checkFuel()
+    checkField()
+    store()
+    if done then break end
+	m.turnTo(2)
+	log.info("Waiting 10 minutes until next harvest")
+	os.sleep(10 * 60) -- wait 10 minutes between each harvest
+end
+
+finish()
