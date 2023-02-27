@@ -66,6 +66,8 @@ local function checkIfReturnNeeded()
 end
 
 local function column()
+    checkIfReturnNeeded()
+
     if h == 0 then
         return
     elseif h == 1 then
@@ -91,8 +93,6 @@ local function column()
 end
 
 local function row()
-    checkIfReturnNeeded()
-
     local targetZ = d
     if m.getZ() ~= 0 then
         targetZ = 0
