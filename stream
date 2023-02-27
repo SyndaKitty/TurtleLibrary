@@ -1,0 +1,34 @@
+local function waitForFile()
+    local f
+    while true do
+        f = fs.open("save/commands", "r")
+        if f ~= nil then
+            break
+        end
+        os.sleep(1)
+    end
+    return f
+end
+
+local commandIndex = 0
+
+while true do
+    local f = waitForFile()
+    local lineNumber = 0
+    while true do
+        local line = f.readLine()
+        if line == nil then
+            break
+        end
+
+        if commandIndex == lineNumber then
+            print("Executing " .. line)
+            shell.run(line)
+            commandIndex = commandIndex + 1
+        end
+
+        lineNumber = lineNumber + 1
+    end
+    f.close()
+    os.sleep(1)
+end
