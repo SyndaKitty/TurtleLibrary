@@ -48,7 +48,7 @@ local function emptyInventory(goBack)
     end
 
     if goBack then
-        m.gotoZXY(prevZ, prevX, prevY, true)
+        m.gotoYZX(prevZ, prevX, prevY, true)
         m.turnTo(prevH)
     end
 

@@ -10,6 +10,8 @@ pos
 right
 sugarcane
 up
+startup
+updateContents
 lib/all
 lib/inv
 lib/log

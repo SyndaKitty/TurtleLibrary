@@ -40,7 +40,7 @@ while true do
 
         -- Create the file
         local file = io.open(filename, "w")
-        file:write(contents)
-        file:close()
+        file.write(contents)
+        file.close()
     end
 end
