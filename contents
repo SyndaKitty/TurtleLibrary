@@ -12,6 +12,7 @@ sugarcane
 up
 startup
 updateContents
+stream
 lib/all
 lib/inv
 lib/log
