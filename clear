@@ -20,7 +20,7 @@ m.gotoZ(0, true)
 
 local function emptyInventory(goBack)
     local prevX, prevY, prevZ, prevH = m.getX(), m.getY(), m.getZ(), m.getH()
-    m.gotoYXZ(0, 0, 0, true)
+    m.gotoXZY(0, 0, 0, true)
     m.turnTo(3)
 
     local r, d = turtle.inspect()
@@ -48,7 +48,7 @@ local function emptyInventory(goBack)
     end
 
     if goBack then
-        m.gotoYZX(prevZ, prevX, prevY, true)
+        m.gotoYZX(prevY, prevZ, prevX, true)
         m.turnTo(prevH)
     end
 
