@@ -1,0 +1,46 @@
+local root = "https://github.com/SyndaKitty/TurtleLibrary/raw/main/"
+local request = http.get(root .. "contents")
+if request == nil then
+    print("Unable to find contents file")
+    return
+end
+
+while true do
+    local filename = request.readLine()
+    if filename == nil then break end
+
+    local fileRequest = http.get(root .. filename)
+    if fileRequest == nil then
+        print("Unable to find file " .. filename)
+    else
+        print("Loading " .. filename)
+        local contents = fileRequest.readAll()
+        if fs.exists(filename) then
+            fs.delete(filename)
+        end
+        
+        -- Record all directories the file is contained in
+        local directories = {}
+        local dir = filename
+        while true do
+            dir = fs.getDir(dir)
+            if dir == "" or dir == ".." then
+                break
+            end
+            directories[#directories+1] = dir
+        end
+
+        -- Create each directory from the bottom up
+        for i = #directories,1,-1 do
+            if not fs.exists(directories[i]) then
+                print("Creating directory " .. directories[i])
+                fs.makeDir(directories[i])
+            end
+        end
+
+        -- Create the file
+        local file = io.open(filename, "w")
+        file:write(contents)
+        file:close()
+    end
+end
