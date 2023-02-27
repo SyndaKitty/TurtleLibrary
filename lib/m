@@ -266,8 +266,6 @@ end
 function gotoY(iny, force)
     if estop() then return false end
 
-    print("gotoY " .. iny)
-
     force = force or false
     while y > iny do
         if not down(force) then

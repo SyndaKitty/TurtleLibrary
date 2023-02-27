@@ -9,39 +9,80 @@ local h
 if #args < 3 then
     log.error("Expected [width] [depth] [height] arguments")
     return
-else
-    w = tonumber(args[1]) - 1
-    d = tonumber(args[2]) - 1
-    h = tonumber(args[3]) - 1
 end
+
+w = tonumber(args[1]) - 1
+d = tonumber(args[2]) - 1
+h = tonumber(args[3]) - 1
 
 m.init(0, 0, -1, 2) -- forward is Z+, right is X-
 m.gotoZ(0, true)
 
+local function emptyInventory(goBack)
+    local prevX, prevY, prevZ, prevH = m.getX(), m.getY(), m.getZ(), m.getH()
+    m.gotoYXZ(0, 0, 0, true)
+    m.turnTo(3)
+
+    local r, d = turtle.inspect()
+    if not r or d.name ~= "minecraft:chest" then
+        print("Place chest to empty inventory contents into")
+        while true do
+            os.sleep(1)
+            local r, d = turtle.inspect()
+            if r and d.name == "minecraft:chest" then
+                break
+            end
+        end
+    end
+
+    for i = 1,16 do
+        if turtle.getItemCount(i) > 0 then
+            turtle.select(i)
+            if not turtle.drop() then
+                print("Waiting for space in inventory")
+                while not turtle.drop() do
+                    os.sleep(1)
+                end
+            end
+        end
+    end
+
+    if goBack then
+        m.gotoZXY(prevZ, prevX, prevY, true)
+        m.turnTo(prevH)
+    end
+
+    turtle.select(1)
+end
+
+local function checkIfReturnNeeded()
+    if misc.countEmptySlots() <= 2 then
+        misc.defrag()
+    end
+    
+    if misc.countEmptySlots() <= 2 then
+        emptyInventory(true)
+    end
+end
+
 local function column()
-    print("Doing a column")
     if h == 0 then
         return
     elseif h == 1 then
         turtle.digUp()
     else
-        print("h >= 3")
-        print("y: " .. m.getY())
         -- If we are starting at the bottom, dig up 1 level
         if m.getY() == 0 then
-            print("Going up 1")
             m.gotoY(1, true)
         end
 
         -- If we are at y=1, dig to the top
         if m.getY() == 1 then
-            print("Dig to top")
             turtle.digDown()
             m.gotoY(h-1, true)
             turtle.digUp()
         else
         -- If we are at the top, dig to y=1
-            print("Dig to bottom")
             turtle.digUp()
             m.gotoY(1, true)
             turtle.digDown()
@@ -50,14 +91,13 @@ local function column()
 end
 
 local function row()
-    print("Doing a row")
-    --column(h)
+    checkIfReturnNeeded()
+
     local targetZ = d
     if m.getZ() ~= 0 then
         targetZ = 0
     end
 
-    print(m.getZ(), targetZ, misc.fromTo(m.getZ(), targetZ))
     for z = m.getZ(), targetZ, misc.fromTo(m.getZ(), targetZ) do
         column(h)
         local nextZ = z + misc.sign(z, targetZ)
@@ -66,7 +106,6 @@ local function row()
 end
 
 for x = m.getX(), -w, -1 do
-    print("X: " .. x)
     row()
 
     -- If we've reached the end of the last row, don't turn
@@ -86,6 +125,8 @@ for x = m.getX(), -w, -1 do
         m.left()
     end
 end
+
+emptyInventory()
 
 m.gotoYXZ(0, 0, -1)
 m.turnTo(2)
