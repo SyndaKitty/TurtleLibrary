@@ -24,18 +24,22 @@ function getH() return h end
 
 function load()
     log.info('Loading position', false)
-    if fs.exists(saveLocation) then
-        local file = fs.open(saveLocation, "r")
-        x = tonumber(file.readLine())
-        y = tonumber(file.readLine())
-        z = tonumber(file.readLine())
-        h = tonumber(file.readLine())
+    if not fs.exists(saveLocation) then
+        local file = fs.open(saveLocation, "w")
+        file.writeLine(x)
+        file.writeLine(y)
+        file.writeLine(z)
+        file.writeLine(h)
         file.close()
-        return true
-    else
-        log.error('Unable to find save file', false, false)
-        return false
     end
+
+    local file = fs.open(saveLocation, "r")
+    x = tonumber(file.readLine())
+    y = tonumber(file.readLine())
+    z = tonumber(file.readLine())
+    h = tonumber(file.readLine())
+    file.close()
+    return true
 end
 
 load()
@@ -53,6 +57,12 @@ function init(inx, iny, inz, inh)
 end
 
 function estop()
+    if not fs.exists(estopLocation) then
+        local file = fs.open(estopLocation, "w")
+        file.writeLine("0")
+        file.close()
+    end
+
     local file = fs.open(estopLocation, "r")
     local stat = tonumber(file.readLine())
     file.close()
@@ -255,6 +265,8 @@ end
 -- Move toward the y provided, digging if necessary and force is specified
 function gotoY(iny, force)
     if estop() then return false end
+
+    print("gotoY " .. iny)
 
     force = force or false
     while y > iny do

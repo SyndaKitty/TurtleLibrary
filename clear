@@ -19,20 +19,29 @@ m.init(0, 0, -1, 2) -- forward is Z+, right is X-
 m.gotoZ(0, true)
 
 local function column()
-    if h <= 1 then 
+    print("Doing a column")
+    if h == 0 then
         return
-    elseif h == 2 then 
+    elseif h == 1 then
         turtle.digUp()
     else
+        print("h >= 3")
+        print("y: " .. m.getY())
+        -- If we are starting at the bottom, dig up 1 level
         if m.getY() == 0 then
+            print("Going up 1")
             m.gotoY(1, true)
         end
-        
+
+        -- If we are at y=1, dig to the top
         if m.getY() == 1 then
+            print("Dig to top")
             turtle.digDown()
             m.gotoY(h-1, true)
             turtle.digUp()
         else
+        -- If we are at the top, dig to y=1
+            print("Dig to bottom")
             turtle.digUp()
             m.gotoY(1, true)
             turtle.digDown()
@@ -41,34 +50,41 @@ local function column()
 end
 
 local function row()
-    column(h)
+    print("Doing a row")
+    --column(h)
     local targetZ = d
     if m.getZ() ~= 0 then
         targetZ = 0
     end
 
-    while m.getZ() ~= targetZ do
-        local nextZ = m.getZ() + misc.sign(m.getZ(), targetZ)
-        m.gotoZ(nextZ, true)
+    print(m.getZ(), targetZ, misc.fromTo(m.getZ(), targetZ))
+    for z = m.getZ(), targetZ, misc.fromTo(m.getZ(), targetZ) do
         column(h)
+        local nextZ = z + misc.sign(z, targetZ)
+        m.gotoZ(nextZ, true)
     end
 end
 
-if m.getX() ~= -w then
+for x = m.getX(), -w, -1 do
+    print("X: " .. x)
     row()
-end
 
-while m.getX() ~= -w do
+    -- If we've reached the end of the last row, don't turn
+    if x == -w then
+        break
+    end
+
+    -- Alternate turning left/right at the end
+    -- of the row to do a snake-like pattern
     if m.getH() == 2 then
         m.right()
         m.forward(true)
         m.right()
-    else 
+    else
         m.left()
         m.forward(true)
         m.left()
     end
-    row()
 end
 
 m.gotoYXZ(0, 0, -1)

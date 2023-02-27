@@ -1,4 +1,13 @@
--- TODO 
--- if args aren't null, refuel with the indicated slow
+local args = { ... }
+
+if #args > 0 then
+    local slot = tonumber(args[1])
+    if slot == nil then
+        print("Invalid argument " .. args[1])
+    else
+        turtle.select(slot)
+        turtle.refuel()
+    end
+end
 
 log.info("Fuel level: " .. turtle.getFuelLevel())

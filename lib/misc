@@ -115,3 +115,13 @@ function sign(from, to)
     if delta < 0 then return -1 end
     return 0
 end
+
+-- Same as sign, but returns 1 when the difference is 0
+-- this is useful for use in a for loop, as the third argument
+-- Then, even if from == to, the for loop will always execute 
+-- and not get stuck in an infinite loop
+-- Ex:    for i = start, end, fromTo(start, end)
+function fromTo(from, to)
+    if to - from >= 0 then return 1 end
+    return -1
+end
